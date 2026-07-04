@@ -1,0 +1,40 @@
+{
+    "sv_region": {
+        "column": {
+            "region_id": true,
+            "name": true,
+            "code": true,
+            "currency_code": true,
+            "status": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SV_REGION_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SV_REGION_CODE": true
+        }
+    },
+    "sv_product_region_price": {
+        "column": {
+            "entity_id": true,
+            "product_id": true,
+            "region_id": true,
+            "price": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SV_PRODUCT_REGION_PRICE_PRODUCT_ID": true,
+            "SV_PRODUCT_REGION_PRICE_REGION_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SV_PRODUCT_REGION_PRICE_PRODUCT_ID_REGION_ID": true,
+            "SV_PRD_REGION_PRICE_PRD_ID_CAT_PRD_ENTT_ENTT_ID": true,
+            "SV_PRODUCT_REGION_PRICE_REGION_ID_SV_REGION_REGION_ID": true
+        }
+    }
+}

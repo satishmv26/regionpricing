@@ -1,0 +1,17 @@
+{
+    "name": "svextensions/module-region-pricing",
+    "description": "Indexed region based catalog pricing",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "proprietary"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "SVExtensions\\RegionPricing\\": ""
+        }
+    }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Framework\App\Http\Context">
+        <plugin
+            name="sv_region_pricing_http_context"
+            type="SVExtensions\RegionPricing\Plugin\Framework\App\Http\ContextPlugin"
+            sortOrder="10"/>
+    </type>
+
+    <type name="Magento\Catalog\Pricing\Price\FinalPrice">
+        <plugin
+            name="sv_region_pricing_catalog_rule_final_price"
+            type="SVExtensions\RegionPricing\Plugin\Catalog\Pricing\Price\RegionalCatalogRulePlugin"
+            sortOrder="20"/>
+    </type>
+
+</config>

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/sv-region/regions" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <route url="/V1/sv-region/regions" method="POST">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <route url="/V1/sv-region/regions/:regionId" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <route url="/V1/sv-region/regions/:regionId" method="PUT">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <route url="/V1/sv-region/regions/:regionId" method="DELETE">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <route url="/V1/sv-region/regions/code/:code" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionRepositoryInterface" method="getByCode"/>
+        <resources>
+            <resource ref="SVExtensions_RegionPricing::regions"/>
+        </resources>
+    </route>
+
+    <!-- Public: Get regional price for a product by SKU + region code -->
+    <route url="/V1/products/:sku/region-price" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionPriceManagementInterface" method="getBySku"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Public: List active (enabled) regions -->
+    <route url="/V1/sv-region/regions/active" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionPricingFacadeInterface" method="getActiveRegions"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Public: Get current resolved region -->
+    <route url="/V1/sv-region/current-region" method="GET">
+        <service class="SVExtensions\RegionPricing\Api\RegionPricingFacadeInterface" method="getCurrentRegion"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+</routes>
