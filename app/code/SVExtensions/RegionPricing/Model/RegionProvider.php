@@ -104,6 +104,11 @@ class RegionProvider
 
     /**
      * Get Region ID assigned to logged-in customer.
+     *
+     * Resolution order:
+     * 1. HttpContext (set by ContextPlugin from cookie or default_region)
+     * 2. Customer EAV attribute fallback (for REST/GraphQL where
+     *    ContextPlugin may not have set the value)
      */
    public function getCurrentRegionId(): ?int
     {
@@ -115,7 +120,21 @@ class RegionProvider
             self::CONTEXT_REGION_ID
         );
 
-        return $regionId > 0 ? $regionId : null;
+        if ($regionId > 0) {
+            return $regionId;
+        }
+
+        /*
+         * Fallback for REST/GraphQL: read from customer attribute.
+         */
+        if ($this->customerSession->isLoggedIn()) {
+            $customer = $this->customerSession->getCustomer();
+            if ($customer && $customer->getData(self::ATTRIBUTE_CODE)) {
+                return (int)$customer->getData(self::ATTRIBUTE_CODE);
+            }
+        }
+
+        return null;
     }
 
     /**

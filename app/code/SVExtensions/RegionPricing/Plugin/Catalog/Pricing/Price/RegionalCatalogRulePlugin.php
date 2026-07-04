@@ -5,23 +5,35 @@ namespace SVExtensions\RegionPricing\Plugin\Catalog\Pricing\Price;
 
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Pricing\Price\FinalPrice;
-use Magento\CatalogRule\Model\Rule as CatalogRule;
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use SVExtensions\RegionPricing\Helper\Logger;
 use SVExtensions\RegionPricing\Model\Config;
-use SVExtensions\RegionPricing\Model\PriceResolver;
+use SVExtensions\RegionPricing\Model\RegionalEffectivePriceResolver;
 
 class RegionalCatalogRulePlugin
 {
     public function __construct(
         private readonly Config $config,
-        private readonly PriceResolver $priceResolver,
-        private readonly CatalogRule $catalogRule,
-        private readonly Logger $logger
+        private readonly RegionalEffectivePriceResolver $regionalEffectivePriceResolver,
+        private readonly Logger $logger,
+        private readonly State $appState
     ) {
     }
 
     /**
      * Apply Catalog Rule on top of Regional Base Price.
+     *
+     * Delegates effective price calculation to
+     * RegionalEffectivePriceResolver (single source of truth).
+     *
+     * Then chooses the lower of:
+     *   effective regional price (regional base + Catalog Rule)
+     *   vs
+     *   native final price (which may include Tier/Special pricing)
+     *
+     * Configurable parent: native result is 0 (parent has no price).
+     * Use the child-based effective regional price directly.
      *
      * Example:
      *
@@ -40,6 +52,10 @@ class RegionalCatalogRulePlugin
             return $result;
         }
 
+        if ($this->isAdminArea()) {
+            return $result;
+        }
+
         try {
             $product = $subject->getProduct();
 
@@ -53,56 +69,44 @@ class RegionalCatalogRulePlugin
                 return $result;
             }
 
-            $regionalPrice = $this->priceResolver->resolvePrice(
-                $productId
-            );
+            $effectiveRegionalPrice = $this->regionalEffectivePriceResolver
+                ->resolve($product);
 
             /*
              * No regional price:
              * preserve complete native Magento final price.
              */
-            if ($regionalPrice === null) {
+            if ($effectiveRegionalPrice === null) {
                 return $result;
             }
 
-            $regionalPrice = (float)$regionalPrice;
-
             /*
-             * Calculate Catalog Rule using Regional Price
-             * as the calculation base.
-             */
-            $catalogRulePrice = $this->catalogRule
-                ->calcProductPriceRule(
-                    $product,
-                    $regionalPrice
-                );
-
-            /*
-             * No applicable Catalog Rule.
+             * Parent product types whose native final price is 0
+             * (getPrice() = 0) — use effective regional price directly.
              *
-             * Do not blindly return regional price here because
-             * native final price may contain Special/Tier pricing.
+             * Configurable & grouped: price from children.
+             * Dynamic bundle: price sum of selections.
+             * Fixed-priced bundles have their own price; skip here.
              */
-            if (
-                $catalogRulePrice === null
-                || $catalogRulePrice === false
-            ) {
-                return min(
-                    $regionalPrice,
-                    $result
+            $skipMin = $product->getTypeId() === 'configurable'
+                || $product->getTypeId() === 'grouped'
+                || (
+                    $product->getTypeId() === 'bundle'
+                    && (int)$product->getPriceType() === 0
                 );
+
+            if ($skipMin) {
+                return $effectiveRegionalPrice;
             }
 
-            $catalogRulePrice = (float)$catalogRulePrice;
-
             /*
-             * For current phase:
-             * choose lowest applicable final price.
+             * Choose lowest applicable final price.
              *
-             * Regional Catalog Rule result vs native final price.
+             * Regional effective price (regional base + Catalog Rule)
+             * vs native final price (may include Tier/Special pricing).
              */
             return min(
-                $catalogRulePrice,
+                $effectiveRegionalPrice,
                 $result
             );
 
@@ -115,6 +119,16 @@ class RegionalCatalogRulePlugin
             );
 
             return $result;
+        }
+    }
+
+    private function isAdminArea(): bool
+    {
+        try {
+            return $this->appState->getAreaCode()
+                === Area::AREA_ADMINHTML;
+        } catch (\Throwable $exception) {
+            return false;
         }
     }
 }

@@ -20,4 +20,10 @@
             instance="SVExtensions\RegionPricing\Observer\ApplyRegionalQuotePrice"/>
     </event>
 
+    <event name="checkout_cart_update_items_after">
+        <observer
+            name="sv_region_pricing_update_quote_price"
+            instance="SVExtensions\RegionPricing\Observer\UpdateRegionalQuotePrice"/>
+    </event>
+
 </config>

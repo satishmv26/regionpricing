@@ -10,14 +10,12 @@
         </arguments>
     </virtualType>
 
+    <!-- Register region listing data source via plugin (avoids overwriting
+         collections registered by other modules) -->
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <arguments>
-            <argument name="collections" xsi:type="array">
-                <item name="sv_region_listing_data_source" xsi:type="string">
-                    SVExtensions\RegionPricing\Model\ResourceModel\Region\Grid\Collection
-                </item>
-            </argument>
-        </arguments>
+        <plugin name="svRegionPricing_registerRegionListing"
+                type="SVExtensions\RegionPricing\Plugin\Adminhtml\CollectionFactoryPlugin"
+                sortOrder="10"/>
     </type>
 
     <!-- Register Product Form Modifier for Regional Prices -->
