@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Region Grid Collection -->
+    <virtualType name="SVExtensions\RegionPricing\Model\ResourceModel\Region\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">sv_region</argument>
+            <argument name="resourceModel" xsi:type="string">SVExtensions\RegionPricing\Model\ResourceModel\Region</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="sv_region_listing_data_source" xsi:type="string">
+                    SVExtensions\RegionPricing\Model\ResourceModel\Region\Grid\Collection
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Register Product Form Modifier for Regional Prices -->
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="sv_regional_prices" xsi:type="array">
+                    <item name="class" xsi:type="string">SVExtensions\RegionPricing\Ui\DataProvider\Product\Form\Modifier\RegionalPrices</item>
+                    <item name="sortOrder" xsi:type="number">95</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Extract regional prices from POST data before product initialization -->
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\Initialization\Helper">
+        <plugin name="svRegionPricing_initialization"
+                type="SVExtensions\RegionPricing\Plugin\Catalog\Controller\Adminhtml\Product\InitializationPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Configure InitializationPlugin dependencies -->
+    <type name="SVExtensions\RegionPricing\Plugin\Catalog\Controller\Adminhtml\Product\InitializationPlugin">
+        <arguments>
+            <argument name="logger" xsi:type="object">SVExtensions\RegionPricing\Helper\Logger</argument>
+        </arguments>
+    </type>
+
+    <!-- Configure RegionalPrices Modifier dependencies -->
+    <type name="SVExtensions\RegionPricing\Ui\DataProvider\Product\Form\Modifier\RegionalPrices">
+        <arguments>
+            <argument name="logger" xsi:type="object">SVExtensions\RegionPricing\Helper\Logger</argument>
+        </arguments>
+    </type>
+
+</config>

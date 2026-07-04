@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <event name="customer_login">
+        <observer
+            name="sv_region_pricing_customer_login"
+            instance="SVExtensions\RegionPricing\Observer\CustomerLogin"/>
+    </event>
+
+    <event name="customer_logout">
+        <observer
+            name="sv_region_pricing_customer_logout"
+            instance="SVExtensions\RegionPricing\Observer\CustomerLogout"/>
+    </event>
+
+    <event name="checkout_cart_product_add_after">
+        <observer
+            name="sv_region_pricing_apply_quote_price"
+            instance="SVExtensions\RegionPricing\Observer\ApplyRegionalQuotePrice"/>
+    </event>
+
+</config>

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+
+    <system>
+
+        <section id="sv_region_pricing" translate="label" sortOrder="710" showInDefault="1" showInWebsite="1" showInStore="1">
+
+            <label>Region Pricing</label>
+
+            <tab>catalog</tab>
+
+            <resource>SVExtensions_RegionPricing::config</resource>
+
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+
+                <label>General</label>
+
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+
+                    <label>Enable Region Pricing</label>
+
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+
+                </field>
+
+                <field id="default_region" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+
+                    <label>Default Guest Region</label>
+
+                    <source_model>SVExtensions\RegionPricing\Model\Config\Source\Region</source_model>
+
+                </field>
+
+                <field id="enable_logging" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+
+                    <label>Enable Logging</label>
+
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+
+                </field>
+
+            </group>
+
+        </section>
+
+    </system>
+
+</config>

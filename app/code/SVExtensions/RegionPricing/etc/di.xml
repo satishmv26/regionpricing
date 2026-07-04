@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Region Model -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\Data\RegionInterface"
+        type="SVExtensions\RegionPricing\Model\Region"/>
+
+    <!-- Region Repository & Search Results -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\RegionRepositoryInterface"
+        type="SVExtensions\RegionPricing\Model\RegionRepository"/>
+    <preference
+        for="SVExtensions\RegionPricing\Api\Data\RegionSearchResultsInterface"
+        type="SVExtensions\RegionPricing\Model\RegionSearchResults"/>
+
+    <!-- Regional Price Repository & Search Results -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\RegionalPriceRepositoryInterface"
+        type="SVExtensions\RegionPricing\Model\RegionalPriceRepository"/>
+    <preference
+        for="SVExtensions\RegionPricing\Api\Data\RegionalPriceSearchResultsInterface"
+        type="SVExtensions\RegionPricing\Model\RegionalPriceSearchResults"/>
+
+    <!-- Region Price Management (Public API) -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\RegionPriceManagementInterface"
+        type="SVExtensions\RegionPricing\Model\RegionPriceManagement"/>
+    <preference
+        for="SVExtensions\RegionPricing\Api\Data\RegionPriceInfoInterface"
+        type="SVExtensions\RegionPricing\Model\RegionPriceInfo"/>
+
+    <!-- Product Region Price Service -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\ProductRegionPriceRepositoryInterface"
+        type="SVExtensions\RegionPricing\Model\ProductRegionPriceRepository"/>
+
+    <!-- Replace base product price with regional price on storefront -->
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="svRegionPricing_ProductPrice"
+                type="SVExtensions\RegionPricing\Plugin\Catalog\Model\Product\PricePlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Persist regional prices on product save -->
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="svRegionPricing_ProductSave"
+                type="SVExtensions\RegionPricing\Plugin\Catalog\Model\Product\SavePlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Public facade for REST API -->
+    <preference
+        for="SVExtensions\RegionPricing\Api\RegionPricingFacadeInterface"
+        type="SVExtensions\RegionPricing\Model\RegionPricingFacade"/>
+
+    <!-- Preload regional prices for product collections (PLP, Search) -->
+    <type name="Magento\Catalog\Model\ResourceModel\Product\Collection">
+        <plugin name="svRegionPricing_CollectionPreload"
+                type="SVExtensions\RegionPricing\Plugin\Catalog\Model\Product\CollectionPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Validate customer pricing region on registration -->
+    <type name="Magento\Customer\Controller\Account\CreatePost">
+        <plugin name="svRegionPricing_createPostValidation"
+                type="SVExtensions\RegionPricing\Plugin\Customer\Controller\Account\RegionValidationPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Validate customer pricing region on account edit -->
+    <type name="Magento\Customer\Controller\Account\EditPost">
+        <plugin name="svRegionPricing_editPostValidation"
+                type="SVExtensions\RegionPricing\Plugin\Customer\Controller\Account\RegionValidationPlugin"
+                sortOrder="10"/>
+    </type>
+
+</config>

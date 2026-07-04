@@ -1,0 +1,38 @@
+type Query {
+    svRegionPrices(
+        regionCode: String @doc(description: "Region code filter")
+        sku: String @doc(description: "Product SKU filter")
+    ): [SvRegionalPrice] @resolver(class: "SVExtensions\\RegionPricing\\Model\\Resolver\\RegionalPrices") @doc(description: "Retrieve regional prices")
+
+    svActiveRegions: [SvRegion]
+        @resolver(class: "SVExtensions\\RegionPricing\\Model\\Resolver\\ActiveRegions")
+        @doc(description: "Retrieve all active (enabled) regions")
+
+    svCurrentRegion: SvRegion
+        @resolver(class: "SVExtensions\\RegionPricing\\Model\\Resolver\\CurrentRegion")
+        @doc(description: "Retrieve the currently resolved region for the visitor")
+}
+
+type SvRegionalPrice @doc(description: "Regional price entry") {
+    entity_id: Int @doc(description: "Entity ID")
+    product_id: Int @doc(description: "Product ID")
+    region_id: Int @doc(description: "Region ID")
+    price: Float @doc(description: "Regional price value")
+    sku: String @doc(description: "Product SKU")
+    region_code: String @doc(description: "Region code")
+    region_name: String @doc(description: "Region name")
+}
+
+type SvRegion @doc(description: "Region entry") {
+    region_id: Int @doc(description: "Region ID")
+    name: String @doc(description: "Region name")
+    code: String @doc(description: "Region code")
+    currency_code: String @doc(description: "Currency code")
+    status: Int @doc(description: "Status (1=enabled, 0=disabled)")
+}
+
+extend type ProductInterface @doc(description: "Product extension for regional pricing") {
+    region_price(region: String): SvRegionalPrice
+        @doc(description: "Returns regional price for the given region code")
+        @resolver(class: "SVExtensions\\RegionPricing\\Model\\Resolver\\ProductRegionPrice")
+}

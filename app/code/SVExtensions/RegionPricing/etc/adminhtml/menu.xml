@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+
+    <menu>
+
+        <add id="SVExtensions_RegionPricing::root"
+             title="Region Pricing"
+             module="SVExtensions_RegionPricing"
+             sortOrder="85"
+             resource="SVExtensions_RegionPricing::root"/>
+
+        <add id="SVExtensions_RegionPricing::regions"
+             title="Manage Regions"
+             module="SVExtensions_RegionPricing"
+             parent="SVExtensions_RegionPricing::root"
+             action="svregion/region/index"
+             sortOrder="10"
+             resource="SVExtensions_RegionPricing::regions"/>
+
+    </menu>
+
+</config>
