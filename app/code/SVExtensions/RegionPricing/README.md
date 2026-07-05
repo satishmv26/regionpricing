@@ -257,3 +257,5 @@ The module creates a customer attribute `sv_region_code` (varchar) via setup pat
 | `Observer/Sales/OrderSaveObserver.php` | Audit order prices |
 | `Block/Selector.php` | Region switcher block |
 | `Setup/Patch/Data/AddCustomerAttribute.php` | Customer attribute setup |
+
+If you like my module you can arrange coffee for me by pating 5$ on given upi - nestiley901@ybl
