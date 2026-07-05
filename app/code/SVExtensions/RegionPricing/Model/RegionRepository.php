@@ -108,10 +108,14 @@ class RegionRepository implements RegionRepositoryInterface
      * @inheritDoc
      */
     public function getList(
-        SearchCriteriaInterface $searchCriteria
+        SearchCriteriaInterface $searchCriteria = null
     ): RegionSearchResultsInterface {
 
         $collection = $this->collectionFactory->create();
+
+        if ($searchCriteria === null) {
+            $searchCriteria = new \Magento\Framework\Api\SearchCriteria();
+        }
 
         $this->collectionProcessor->process(
             $searchCriteria,

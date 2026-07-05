@@ -53,11 +53,11 @@ interface RegionRepositoryInterface
     /**
      * Get Region List
      *
-     * @param SearchCriteriaInterface $searchCriteria
+     * @param SearchCriteriaInterface|null $searchCriteria
      * @return RegionSearchResultsInterface
      */
     public function getList(
-        SearchCriteriaInterface $searchCriteria
+        SearchCriteriaInterface $searchCriteria = null
     ): RegionSearchResultsInterface;
 
     /**
