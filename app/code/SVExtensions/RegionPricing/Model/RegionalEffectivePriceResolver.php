@@ -153,7 +153,7 @@ class RegionalEffectivePriceResolver
             && (int)$product->getPriceType() === 0;
     }
 
-    private function applyCatalogueRule(Product $product, float $basePrice): float
+    public function applyCatalogueRule(Product $product, float $basePrice): float
     {
         $catalogRulePrice = $this->catalogRule->calcProductPriceRule(
             $product,
@@ -165,5 +165,25 @@ class RegionalEffectivePriceResolver
         }
 
         return $basePrice;
+    }
+
+    /**
+     * Get the regional base price only (no catalog rule applied).
+     * Used when the caller needs to apply catalog rule on a different
+     * product than the one carrying the regional price (e.g. simple
+     * child of configurable where only the parent has a regional price).
+     */
+    public function getRegionalBasePrice(Product $product): ?float
+    {
+        $productId = (int)$product->getId();
+        if ($productId <= 0) {
+            return null;
+        }
+
+        if ($this->isDynamicBundle($product)) {
+            return null;
+        }
+
+        return $this->priceResolver->resolvePrice($productId);
     }
 }

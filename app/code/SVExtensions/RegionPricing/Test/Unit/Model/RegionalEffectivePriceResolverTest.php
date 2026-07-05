@@ -195,6 +195,45 @@ class RegionalEffectivePriceResolverTest extends TestCase
         self::assertNull($this->resolver->resolve($product));
     }
 
+    public function testGetRegionalBasePriceReturnsPriceWithoutCatalogRule(): void
+    {
+        $this->configMock->method('isEnabled')->willReturn(true);
+        $this->priceResolverMock->method('resolvePrice')->with(1)->willReturn(45.0);
+
+        $product = $this->createProduct(1, 'simple');
+
+        self::assertSame(45.0, $this->resolver->getRegionalBasePrice($product));
+    }
+
+    public function testGetRegionalBasePriceReturnsNullForDynamicBundle(): void
+    {
+        $product = $this->createProduct(1, 'bundle', ['getPriceType' => 0]);
+
+        self::assertNull($this->resolver->getRegionalBasePrice($product));
+    }
+
+    public function testApplyCatalogueRuleAppliesRuleAndReturnsDiscountedPrice(): void
+    {
+        $this->catalogRuleMock->method('calcProductPriceRule')
+            ->with($this->anything(), 50.0)
+            ->willReturn(40.0);
+
+        $product = $this->createProduct(1, 'simple');
+
+        self::assertSame(40.0, $this->resolver->applyCatalogueRule($product, 50.0));
+    }
+
+    public function testApplyCatalogueRuleReturnsBasePriceWhenNoRule(): void
+    {
+        $this->catalogRuleMock->method('calcProductPriceRule')
+            ->with($this->anything(), 50.0)
+            ->willReturn(false);
+
+        $product = $this->createProduct(1, 'simple');
+
+        self::assertSame(50.0, $this->resolver->applyCatalogueRule($product, 50.0));
+    }
+
     private function createProduct(int $id, string $typeId): MockObject|Product
     {
         $product = $this->createMock(Product::class);

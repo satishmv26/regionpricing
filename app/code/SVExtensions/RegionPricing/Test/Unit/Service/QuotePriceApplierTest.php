@@ -226,6 +226,138 @@ class QuotePriceApplierTest extends TestCase
         $this->applier->apply($parentItem);
     }
 
+    public function testAppliesCatalogRuleOnChildWhenFallbackResolvesParent(): void
+    {
+        $parentProduct = $this->createMock(Product::class);
+        $parentProduct->method('getId')->willReturn(1);
+        $parentProduct->method('getTypeId')->willReturn('configurable');
+        $parentProduct->method('getFinalPrice')->willReturn(60.0);
+
+        $childProduct = $this->createMock(Product::class);
+        $childProduct->method('getId')->willReturn(10);
+        $childProduct->method('getTypeId')->willReturn('simple');
+        $childProduct->method('getFinalPrice')->willReturn(60.0);
+
+        $parentItem = $this->createItem();
+        $parentItem->method('getProduct')->willReturn($parentProduct);
+
+        $this->configMock->method('isEnabled')->willReturn(true);
+
+        /*
+         * Parent has regional price (resolve returns 50.0),
+         * child has NO regional price (resolve returns null).
+         * resolveProduct should fall back to the parent.
+         */
+        $this->resolverMock->method('resolve')
+            ->willReturnCallback(function ($p) use ($parentProduct, $childProduct) {
+                if ($p === $parentProduct) {
+                    return 50.0;
+                }
+                if ($p === $childProduct) {
+                    return null;
+                }
+                return null;
+            });
+
+        /*
+         * getRegionalBasePrice returns the base regional price
+         * from the parent (without catalog rule).
+         * applyCatalogueRule then applies catalog rule on the
+         * child product, reducing price further.
+         */
+        $this->resolverMock->method('getRegionalBasePrice')
+            ->with($parentProduct)
+            ->willReturn(50.0);
+
+        $this->resolverMock->method('applyCatalogueRule')
+            ->with($childProduct, 50.0)
+            ->willReturn(40.0);
+
+        $childItem = $this->createItem(
+            ['getProduct', 'getChildren', 'setCustomPrice', 'getParentItem'],
+            ['setOriginalCustomPrice']
+        );
+        $childItem->method('getProduct')->willReturn($childProduct);
+        $childItem->method('getParentItem')->willReturn($parentItem);
+        $childItem->expects(self::once())->method('setCustomPrice')->with(40.0);
+        $childItem->expects(self::once())->method('setOriginalCustomPrice')->with(40.0);
+
+        $parentItem = $this->createItem();
+        $parentItem->method('getProduct')->willReturn($parentProduct);
+        $parentItem->method('getChildren')->willReturn([$childItem]);
+
+        $this->applier->apply($parentItem);
+    }
+
+    public function testAppliesCatalogRuleOnChildrenForParentItem(): void
+    {
+        $parentProduct = $this->createMock(Product::class);
+        $parentProduct->method('getId')->willReturn(1);
+        $parentProduct->method('getTypeId')->willReturn('configurable');
+        $parentProduct->method('getFinalPrice')->willReturn(60.0);
+
+        $childProduct = $this->createMock(Product::class);
+        $childProduct->method('getId')->willReturn(10);
+        $childProduct->method('getTypeId')->willReturn('simple');
+
+        $this->configMock->method('isEnabled')->willReturn(true);
+
+        /*
+         * Parent has regional price (resolve returns 50.0),
+         * so resolveProduct returns the parent itself.
+         * Child has no regional price (resolve returns null).
+         */
+        $this->resolverMock->method('resolve')
+            ->willReturnCallback(function ($p) use ($parentProduct, $childProduct) {
+                if ($p === $parentProduct) {
+                    return 50.0;
+                }
+                if ($p === $childProduct) {
+                    return null;
+                }
+                return null;
+            });
+
+        /*
+         * getRegionalBasePrice returns the base regional price
+         * from the parent. applyCatalogueRule on the child
+         * product reduces it further (simulating a catalog rule
+         * that matches the child but not the parent).
+         * This fallback is used when resolve($childProduct) returns null.
+         */
+        $this->resolverMock->method('getRegionalBasePrice')
+            ->with($parentProduct)
+            ->willReturn(50.0);
+
+        $this->resolverMock->method('applyCatalogueRule')
+            ->with($childProduct, 50.0)
+            ->willReturn(40.0);
+
+        $childItem = $this->createItem();
+        $childItem->method('getProduct')->willReturn($childProduct);
+
+        /*
+         * Parent item has children - the new code path (case 2)
+         * should iterate children and re-apply catalog rule
+         * on each child's product.
+         */
+        $parentItem = $this->createItem(
+            ['getProduct', 'getChildren', 'setCustomPrice', 'getParentItem'],
+            ['setOriginalCustomPrice']
+        );
+        $parentItem->method('getProduct')->willReturn($parentProduct);
+        $parentItem->method('getChildren')->willReturn([$childItem]);
+
+        /*
+         * The parent's custom price should reflect the child's
+         * catalog rule discount (40.0), not the parent's (50.0).
+         */
+        $parentItem->expects(self::once())->method('setCustomPrice')->with(40.0);
+        $parentItem->expects(self::once())->method('setOriginalCustomPrice')->with(40.0);
+
+        $this->applier->apply($parentItem);
+    }
+
     public function testReturnsTrueWhenChildrenHaveNoRegionalPrice(): void
     {
         $product = $this->createMock(Product::class);

@@ -28,6 +28,11 @@ class ApplyRegionalQuotePrice implements ObserverInterface
         try {
             $quoteItem = $observer->getEvent()->getQuoteItem();
 
+            $this->logger->info('ApplyRegionalQuotePrice::execute triggered', [
+                'quote_item_id' => $quoteItem instanceof Item ? $quoteItem->getId() : 'n/a',
+                'quote_item_type' => $quoteItem instanceof Item ? $quoteItem->getProductType() : 'n/a',
+            ]);
+
             if (!$quoteItem instanceof Item) {
                 return;
             }
